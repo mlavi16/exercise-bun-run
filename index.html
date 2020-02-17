@@ -1,0 +1,188 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 1</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 1000},
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    var canvasWidth = 800;
+    var canvasHeight = 600;
+
+    function preload ()
+    {
+        this.load.image('wall', 'assets/wall.jpeg');
+        this.load.image('cage', 'assets/cage.png');
+        this.load.image('floor', 'assets/line.png');
+        this.load.image('couch', 'assets/couch.png');
+        this.load.image('halfcouch', 'assets/couch2.png')
+        this.load.image('chair', 'assets/chair.png');
+        this.load.image('halfchair', 'assets/chairr.png')
+        this.load.image('table', 'assets/table1.png');
+        this.load.image('halftable', 'assets/table2.png');
+        this.load.image('lamp', 'assets/lamp.png');
+        this.load.image('halflamp', 'assets/lamp2.png');
+        this.load.image('vase', 'assets/vase.png');
+        this.load.image('halfvase', 'assets/vase2.png');
+        this.load.image('clock', 'assets/clock1.png');
+        this.load.image('stair', 'assets/box.jpeg');
+        this.load.image('carrot', 'assets/carrot.png');
+
+        this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+
+    }
+
+    function create ()
+    {
+        this.add.image(400, 300, 'wall');
+
+        var cageHeight = 100; 
+        this.add.image(0, canvasHeight-cageHeight, 'cage').setOrigin(0,0);
+
+        floors = this.physics.add.staticGroup();
+
+        floors.create(400, 598, 'floor').setScale(2).refreshBody();
+        floors.create(300, 398, 'floor').setScale(2).refreshBody();
+        floors.create(500, 198, 'floor').setScale(2).refreshBody();
+
+        furniture = this.physics.add.staticGroup();
+
+        furniture.create(200, 580, 'halfcouch');
+        furniture.create(380, 575, 'halfchair');
+        furniture.create(500, 540, 'halftable');
+        furniture.create(600, 475, 'halflamp');
+        furniture.create(550, 520, 'halfvase');
+        furniture.create(480, 475, 'clock')
+        //first floor stairs
+        furniture.create(675, 570, 'stair');
+        furniture.create(725, 570, 'stair');
+        furniture.create(775, 570, 'stair');
+        furniture.create(725, 520, 'stair');
+        furniture.create(775, 520, 'stair');
+        furniture.create(775, 470, 'stair');
+        //second floor stairs
+        furniture.create(125, 370, 'stair');
+        furniture.create(75, 370, 'stair');
+        furniture.create(25, 370, 'stair');
+        furniture.create(75, 320, 'stair');
+        furniture.create(25, 320, 'stair');
+        furniture.create(25, 270, 'stair');
+
+        food = this.physics.add.staticGroup();
+
+        food.create(220, 480, 'carrot'); //couch carrot
+        food.create(380, 480, 'carrot'); //chair carrot
+
+
+
+        fake_furniture = this.physics.add.staticGroup();
+
+        fake_furniture.create(380, 570, 'chair');
+        fake_furniture.create(200, 565, 'couch');
+        fake_furniture.create(500, 570, 'table');
+        fake_furniture.create(550, 500, 'vase');
+        fake_furniture.create(600, 530, 'lamp');
+
+
+
+
+        player = this.physics.add.sprite(100, 450, 'dude');
+        player.setBounce(0.2);
+        player.setCollideWorldBounds(true);
+
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [ { key: 'dude', frame: 4 } ],
+            frameRate: 20
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        this.physics.add.collider(player, furniture);
+        this.physics.add.collider(player, floors);
+
+        this.physics.add.overlap(player, food, collectFood, null, this);
+    }
+
+    function update ()
+    {
+        if (cursors.left.isDown)
+        {
+            player.setVelocityX(-160);
+
+            player.anims.play('left', true);
+        }
+        else if (cursors.right.isDown)
+        {
+            player.setVelocityX(160);
+
+            player.anims.play('right', true);
+        }
+        else
+        {
+            player.setVelocityX(0);
+
+            player.anims.play('turn');
+        }
+
+        if (cursors.up.isDown && player.body.touching.down)
+        {
+            player.setVelocityY(-330);
+        }
+    }
+
+    function collectFood(player, food) 
+    {
+        food.disableBody(true, true);
+
+        // score += 10
+        // scoreText.setText('Score: ' + score);
+
+    }
+
+</script>
+
+</body>
+</html>
